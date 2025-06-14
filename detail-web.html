@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materi Pengembangan Web - RPLpedia</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Menggunakan font Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+    <main class="py-20 pt-24 md:pt-32">
+        <div class="container mx-auto px-6">
+            <a href="index.html"
+                class="mb-8 inline-flex items-center gap-2 bg-white text-slate-700 font-semibold py-2 px-4 rounded-lg shadow hover:bg-slate-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Kembali ke Halaman Utama
+            </a>
+            <div class="text-center mb-16">
+                <h1 class="text-5xl font-extrabold text-slate-900">Materi Pengembangan Web</h1>
+                <p class="text-slate-600 mt-4 max-w-2xl mx-auto">Membangun situs web dan aplikasi interaktif yang
+                    berjalan di peramban (browser).</p>
+            </div>
+
+            <div class="space-y-16">
+                <!-- Front-End -->
+                <div class="flex flex-col md:flex-row items-center gap-12 bg-white p-8 rounded-xl shadow-lg">
+                    <div class="md:w-1/3 text-center">
+                        <img src="https://placehold.co/200x200/DBEAFE/1E40AF?text=Front-End" alt="Ilustrasi Front-End"
+                            class="mx-auto rounded-lg">
+                    </div>
+                    <div class="md:w-2/3">
+                        <h2 class="text-3xl font-bold text-blue-700 mb-4">Front-End: Tampilan Visual</h2>
+                        <p class="text-slate-600 mb-6">Front-end adalah segala sesuatu yang dilihat dan diinteraksikan
+                            langsung oleh pengguna di browser. Tujuannya adalah menciptakan antarmuka yang menarik,
+                            responsif, dan mudah digunakan.</p>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-3">Teknologi Utama:</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-600">
+                            <li><strong>HTML:</strong> Kerangka atau struktur dari sebuah halaman web.</li>
+                            <li><strong>CSS:</strong> Menata dan mempercantik tampilan (warna, layout, font).</li>
+                            <li><strong>JavaScript:</strong> Memberikan interaktivitas dan logika di sisi klien.</li>
+                        </ul>
+                        <h3 class="text-xl font-semibold text-slate-800 mt-4 mb-3">Framework Populer:</h3>
+                        <p class="text-slate-600">React, Vue, dan Svelte adalah beberapa framework JavaScript yang
+                            populer untuk mempercepat pengembangan front-end.</p>
+                    </div>
+                </div>
+
+                <!-- Back-End -->
+                <div class="flex flex-col md:flex-row-reverse items-center gap-12 bg-white p-8 rounded-xl shadow-lg">
+                    <div class="md:w-1/3 text-center">
+                        <img src="https://placehold.co/200x200/F3E8FF/6B21A8?text=Back-End" alt="Ilustrasi Back-End"
+                            class="mx-auto rounded-lg">
+                    </div>
+                    <div class="md:w-2/3">
+                        <h2 class="text-3xl font-bold text-purple-700 mb-4">Back-End: Logika Server</h2>
+                        <p class="text-slate-600 mb-6">Back-end adalah "mesin" yang bekerja di balik layar. Ia
+                            bertanggung jawab mengelola data, memproses permintaan dari pengguna, dan berkomunikasi
+                            dengan database.</p>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-3">Teknologi Utama:</h3>
+                        <ul class="list-disc list-inside space-y-2 text-slate-600">
+                            <li><strong>Bahasa Pemrograman:</strong> Node.js (JavaScript), PHP, Python, Java, Go.</li>
+                            <li><strong>Database:</strong> Berinteraksi dengan database SQL atau NoSQL.</li>
+                            <li><strong>API (Application Programming Interface):</strong> Jembatan komunikasi antara
+                                front-end dan back-end.</li>
+                        </ul>
+                        <h3 class="text-xl font-semibold text-slate-800 mt-4 mb-3">Framework Populer:</h3>
+                        <p class="text-slate-600">Express (untuk Node.js), Laravel (untuk PHP), dan Django (untuk
+                            Python) adalah beberapa framework yang mempercepat pengembangan back-end.</p>
+                    </div>
+                </div>
+                <!-- Sub Judul Modul 1-->
+                <div class="flex flex-col items-center gap-6 bg-green-500 p-8 rounded-xl shadow-lg">
+                    <div class="w-full text-center">
+                        <h2 class="text-3xl font-bold text-white mb-4">MODUL PEMBELAJARAN 1</h2>
+                    </div>
+                </div>
+                <!-- Materi PDF -->
+                <div class="flex flex-col items-center gap-6 bg-white p-8 rounded-xl shadow-lg">
+                    <div class="w-full text-center">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Materi Tambahan (PDF)</h2>
+                        <p class="text-slate-600 mb-6">Klik tombol di bawah untuk membuka materi lengkap dalam format
+                            PDF di tab baru.</p>
+                        <!-- Tombol ini akan membuka PDF di tab baru -->
+                        <!-- Tautan diubah untuk menyembunyikan toolbar -->
+                        <a href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf#toolbar=0"
+                            target="_blank" rel="noopener noreferrer"
+                            class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 transition-transform transform hover:scale-105 duration-300">
+                            Buka Materi PDF
+                        </a>
+                    </div>
+                </div>
+                <!-- Sub Judul Modul 2-->
+                <div class="flex flex-col items-center gap-6 bg-yellow-500 p-8 rounded-xl shadow-lg">
+                    <div class="w-full text-center">
+                        <h2 class="text-3xl font-bold text-white mb-4">MODUL PEMBELAJARAN 2</h2>
+                    </div>
+                </div>
+                <!-- Materi PDF -->
+                <div class="flex flex-col items-center gap-6 bg-white p-8 rounded-xl shadow-lg">
+                    <div class="w-full text-center">
+                        <h2 class="text-3xl font-bold mb-4">Materi Tambahan (PDF)</h2>
+                        <p class="text-slate-600 mb-6">Klik tombol di bawah untuk membuka materi lengkap dalam format
+                            PDF di tab baru.</p>
+                        <!-- Tombol ini akan membuka PDF di tab baru -->
+                        <!-- Tautan diubah untuk menyembunyikan toolbar -->
+                        <a href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf#toolbar=0"
+                            target="_blank" rel="noopener noreferrer"
+                            class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 transition-transform transform hover:scale-105 duration-300">
+                            Buka Materi PDF
+                        </a>
+                    </div>
+                </div>
+                <!-- Sub Judul Modul 3-->
+                <div class="flex flex-col items-center gap-6 bg-red-500 p-8 rounded-xl shadow-lg">
+                    <div class="w-full text-center">
+                        <h2 class="text-3xl font-bold text-white mb-4">MODUL PEMBELAJARAN 3</h2>
+                    </div>
+                </div>
+                <!-- Materi PDF -->
+                <div class="flex flex-col items-center gap-6 bg-white p-8 rounded-xl shadow-lg">
+                    <div class="w-full text-center">
+                        <h2 class="text-3xl font-bold mb-4">Materi Tambahan (PDF)</h2>
+                        <p class="text-slate-600 mb-6">Klik tombol di bawah untuk membuka materi lengkap dalam format
+                            PDF di tab baru.</p>
+                        <!-- Tombol ini akan membuka PDF di tab baru -->
+                        <!-- Tautan diubah untuk menyembunyikan toolbar -->
+                        <a href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf#toolbar=0"
+                            target="_blank" rel="noopener noreferrer"
+                            class="inline-block bg-indigo-600 text-white font-bold py-3 px-8 rounded-full hover:bg-indigo-700 transition-transform transform hover:scale-105 duration-300">
+                            Buka Materi PDF
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white mt-16">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2024 RPLpedia. Dibuat dengan semangat untuk belajar.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

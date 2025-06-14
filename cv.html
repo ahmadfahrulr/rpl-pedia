@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembuat CV Otomatis</title>
+    
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Memuat React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Memuat Library Ikon (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Memuat Library untuk PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* Menggunakan font yang lebih menarik */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,700;1,400&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style khusus untuk area cetak */
+        .print-area {
+            font-family: 'Lora', serif;
+        }
+        /* Mencegah elemen pecah saat dicetak ke PDF */
+        .break-inside-avoid {
+            break-inside: avoid;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        // --- Komponen Ikon (Pengganti Lucide-React) ---
+        const Icon = ({ name, size = 16, className = '' }) => {
+            useEffect(() => {
+                lucide.createIcons();
+            }, []);
+
+            return (
+                <i data-lucide={name} width={size} height={size} className={className}></i>
+            );
+        };
+
+        // --- Komponen Utama Aplikasi ---
+        function App() {
+            const [cvData, setCvData] = useState({
+                personalInfo: {
+                    name: 'Nama Anda',
+                    title: 'Jabatan Profesional',
+                    phone: '0812-3456-7890',
+                    email: 'email.anda@contoh.com',
+                    address: 'Kota, Indonesia',
+                    photo: 'https://placehold.co/400x400/E2E8F0/4A5568?text=Foto',
+                },
+                summary: 'Seorang profesional yang bermotivasi tinggi dengan pengalaman dalam [Bidang Anda]. Mencari kesempatan untuk memberikan kontribusi pada perusahaan yang dinamis dan berkembang.',
+                experience: [{
+                    id: 1,
+                    jobTitle: 'Manajer Proyek',
+                    company: 'PT Teknologi Maju',
+                    location: 'Jakarta',
+                    startDate: 'Jan 2020',
+                    endDate: 'Sekarang',
+                    description: '• Memimpin tim dalam pengembangan proyek perangkat lunak dari awal hingga akhir.\n• Mengelola anggaran dan jadwal proyek untuk memastikan pengiriman tepat waktu.\n• Berkomunikasi dengan pemangku kepentingan untuk melaporkan kemajuan.',
+                }],
+                education: [{
+                    id: 1,
+                    school: 'Universitas Indonesia',
+                    degree: 'Sarjana Teknik Informatika',
+                    location: 'Depok',
+                    startDate: 'Agu 2015',
+                    endDate: 'Jul 2019',
+                    description: 'Fokus pada pengembangan perangkat lunak dan kecerdasan buatan.',
+                }],
+                skills: [
+                    { id: 1, name: 'JavaScript' },
+                    { id: 2, name: 'React.js' },
+                    { id: 3, name: 'Manajemen Proyek' },
+                    { id: 4, name: 'Node.js' },
+                ],
+            });
+
+            const cvPreviewRef = useRef();
+
+            const handleChange = (section, field, value) => {
+                if (section === 'summary') {
+                    setCvData(prevData => ({ ...prevData, summary: value }));
+                } else {
+                    setCvData(prevData => ({
+                        ...prevData,
+                        [section]: {
+                            ...prevData[section],
+                            [field]: value,
+                        },
+                    }));
+                }
+            };
+            
+            const handleItemChange = (section, id, field, value) => {
+                setCvData(prevData => ({
+                    ...prevData,
+                    [section]: prevData[section].map(item =>
+                        item.id === id ? { ...item, [field]: value } : item
+                    ),
+                }));
+            };
+
+            const addItem = (section) => {
+                const newItem = {
+                    id: Date.now(),
+                    ...(section === 'experience' && { jobTitle: '', company: '', location: '', startDate: '', endDate: '', description: '' }),
+                    ...(section === 'education' && { school: '', degree: '', location: '', startDate: '', endDate: '', description: '' }),
+                    ...(section === 'skills' && { name: '' }),
+                };
+                setCvData(prevData => ({
+                    ...prevData,
+                    [section]: [...prevData[section], newItem],
+                }));
+            };
+
+            const deleteItem = (section, id) => {
+                setCvData(prevData => ({
+                    ...prevData,
+                    [section]: prevData[section].filter(item => item.id !== id),
+                }));
+            };
+
+            const handlePhotoUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        handleChange('personalInfo', 'photo', reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const handleDownloadPDF = () => {
+                const { jsPDF } = window.jspdf;
+                const cvElement = cvPreviewRef.current;
+
+                html2canvas(cvElement, {
+                    scale: 2,
+                    useCORS: true, 
+                    logging: false,
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'pt',
+                        format: 'a4'
+                    });
+
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const canvasWidth = canvas.width;
+                    const canvasHeight = canvas.height;
+                    const ratio = canvasWidth / canvasHeight;
+                    
+                    let finalWidth = pdfWidth;
+                    let finalHeight = finalWidth / ratio;
+                    
+                    if(finalHeight > pdfHeight) {
+                        finalHeight = pdfHeight;
+                        finalWidth = finalHeight * ratio;
+                    }
+
+                    const x = (pdfWidth - finalWidth) / 2;
+                    const y = 0;
+
+                    pdf.addImage(imgData, 'PNG', x, y, finalWidth, finalHeight);
+                    pdf.save(`${cvData.personalInfo.name.replace(/\s+/g, '_')}_CV.pdf`);
+                });
+            };
+
+            return (
+                <div className="p-4 md:p-8">
+                    <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Kolom Editor */}
+                        <div className="bg-white p-6 rounded-2xl shadow-lg">
+                            <HeaderControls onDownload={handleDownloadPDF} />
+                            <h1 className="text-3xl font-bold text-gray-800 mb-6">Editor CV</h1>
+                            <CvForm 
+                                cvData={cvData} 
+                                handleChange={handleChange} 
+                                handleItemChange={handleItemChange}
+                                addItem={addItem}
+                                deleteItem={deleteItem}
+                                handlePhotoUpload={handlePhotoUpload}
+                            />
+                        </div>
+
+                        {/* Kolom Pratinjau */}
+                        <div className="sticky top-8">
+                           <div ref={cvPreviewRef} className="bg-white shadow-lg">
+                             <CvPreview cvData={cvData} />
+                           </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        function HeaderControls({ onDownload }) {
+            return (
+                <div className="flex items-center justify-end space-x-3 mb-4">
+                     <a
+                        href="index.html"
+                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gray-600 rounded-lg hover:bg-gray-700 transition-colors shadow-sm"
+                    >
+                        <Icon name="arrow-left" size={16} />
+                        <span className="ml-1">Kembali ke RPL-PEDIA</span>
+                    </a>
+                    <button
+                        onClick={onDownload}
+                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                    >
+                        <Icon name="download" size={16} />
+                        <span className="ml-2">Unduh PDF</span>
+                    </button>
+                </div>
+            );
+        }
+
+        function CvForm({ cvData, handleChange, handleItemChange, addItem, deleteItem, handlePhotoUpload }) {
+            return (
+                <div className="space-y-8">
+                    <Section title="Informasi Pribadi">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Input label="Nama Lengkap" value={cvData.personalInfo.name} onChange={e => handleChange('personalInfo', 'name', e.target.value)} />
+                            <Input label="Jabatan" value={cvData.personalInfo.title} onChange={e => handleChange('personalInfo', 'title', e.target.value)} />
+                            <Input label="Nomor Telepon" value={cvData.personalInfo.phone} onChange={e => handleChange('personalInfo', 'phone', e.target.value)} />
+                            <Input label="Email" value={cvData.personalInfo.email} onChange={e => handleChange('personalInfo', 'email', e.target.value)} />
+                            <Input label="Alamat" value={cvData.personalInfo.address} onChange={e => handleChange('personalInfo', 'address', e.target.value)} />
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Foto Profil</label>
+                                <input type="file" accept="image/*" onChange={handlePhotoUpload} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                            </div>
+                        </div>
+                    </Section>
+
+                    <Section title="Ringkasan">
+                        <Textarea label="Tentang Saya" value={cvData.summary} onChange={e => handleChange('summary', null, e.target.value)} />
+                    </Section>
+
+                    <Section title="Pengalaman Kerja">
+                        {cvData.experience.map(exp => (
+                            <div key={exp.id} className="p-4 border rounded-lg space-y-3 relative bg-gray-50">
+                                <button onClick={() => deleteItem('experience', exp.id)} className="absolute top-2 right-2 text-red-500 hover:text-red-700"><Icon name="trash-2" size={18} /></button>
+                                <Input label="Jabatan" value={exp.jobTitle} onChange={e => handleItemChange('experience', exp.id, 'jobTitle', e.target.value)} />
+                                <Input label="Perusahaan" value={exp.company} onChange={e => handleItemChange('experience', exp.id, 'company', e.target.value)} />
+                                <Input label="Lokasi" value={exp.location} onChange={e => handleItemChange('experience', exp.id, 'location', e.target.value)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Input label="Tanggal Mulai" value={exp.startDate} onChange={e => handleItemChange('experience', exp.id, 'startDate', e.target.value)} />
+                                    <Input label="Tanggal Selesai" value={exp.endDate} onChange={e => handleItemChange('experience', exp.id, 'endDate', e.target.value)} />
+                                </div>
+                                <Textarea label="Deskripsi" value={exp.description} onChange={e => handleItemChange('experience', exp.id, 'description', e.target.value)} />
+                            </div>
+                        ))}
+                        <button onClick={() => addItem('experience')} className="mt-2 flex items-center gap-2 text-sm text-blue-600 font-semibold hover:text-blue-800"><Icon name="plus" size={16} /><span className="ml-1">Tambah Pengalaman</span></button>
+                    </Section>
+
+                    <Section title="Pendidikan">
+                        {cvData.education.map(edu => (
+                            <div key={edu.id} className="p-4 border rounded-lg space-y-3 relative bg-gray-50">
+                                <button onClick={() => deleteItem('education', edu.id)} className="absolute top-2 right-2 text-red-500 hover:text-red-700"><Icon name="trash-2" size={18} /></button>
+                                <Input label="Nama Sekolah/Universitas" value={edu.school} onChange={e => handleItemChange('education', edu.id, 'school', e.target.value)} />
+                                <Input label="Gelar/Jurusan" value={edu.degree} onChange={e => handleItemChange('education', edu.id, 'degree', e.target.value)} />
+                                <Input label="Lokasi" value={edu.location} onChange={e => handleItemChange('education', edu.id, 'location', e.target.value)} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Input label="Tanggal Mulai" value={edu.startDate} onChange={e => handleItemChange('education', edu.id, 'startDate', e.target.value)} />
+                                    <Input label="Tanggal Selesai" value={edu.endDate} onChange={e => handleItemChange('education', edu.id, 'endDate', e.target.value)} />
+                                </div>
+                                <Textarea label="Deskripsi Tambahan" value={edu.description} onChange={e => handleItemChange('education', edu.id, 'description', e.target.value)} />
+                            </div>
+                        ))}
+                        <button onClick={() => addItem('education')} className="mt-2 flex items-center gap-2 text-sm text-blue-600 font-semibold hover:text-blue-800"><Icon name="plus" size={16} /><span className="ml-1">Tambah Pendidikan</span></button>
+                    </Section>
+
+                    <Section title="Keterampilan">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {cvData.skills.map((skill, index) => (
+                                <div key={skill.id} className="flex items-center">
+                                    <Input 
+                                        value={skill.name} 
+                                        onChange={e => handleItemChange('skills', skill.id, 'name', e.target.value)}
+                                        placeholder={`Skill #${index + 1}`}
+                                    />
+                                    <button onClick={() => deleteItem('skills', skill.id)} className="ml-2 text-red-500 hover:text-red-700 flex-shrink-0"><Icon name="trash-2" size={18} /></button>
+                                </div>
+                            ))}
+                        </div>
+                        <button onClick={() => addItem('skills')} className="mt-4 flex items-center gap-2 text-sm text-blue-600 font-semibold hover:text-blue-800"><Icon name="plus" size={16} /><span className="ml-1">Tambah Keterampilan</span></button>
+                    </Section>
+                </div>
+            );
+        }
+
+        const Section = ({ title, children }) => (
+            <div className="border-t pt-6">
+                <h2 className="text-xl font-bold text-gray-700 mb-4">{title}</h2>
+                <div className="space-y-4">{children}</div>
+            </div>
+        );
+
+        const Input = ({ label, ...props }) => (
+            <div>
+                {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
+                <input
+                    {...props}
+                    className="block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+            </div>
+        );
+
+        const Textarea = ({ label, ...props }) => (
+            <div>
+                {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
+                <textarea
+                    {...props}
+                    rows="4"
+                    className="block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+            </div>
+        );
+
+        function CvPreview({ cvData }) {
+            const { personalInfo, summary, experience, education, skills } = cvData;
+
+            return (
+                <div className="p-10 text-gray-800 bg-white print-area">
+                    <header className="flex items-center mb-8">
+                        <img 
+                            src={personalInfo.photo} 
+                            alt="Foto Profil" 
+                            className="w-32 h-32 rounded-full mr-8 object-cover border-4 border-gray-200"
+                            onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/400x400/E2E8F0/4A5568?text=Gagal+Muat'; }}
+                        />
+                        <div>
+                            <h1 className="text-4xl font-bold text-blue-800">{personalInfo.name}</h1>
+                            <h2 className="text-xl font-light text-gray-600">{personalInfo.title}</h2>
+                            <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                                <span>{personalInfo.phone}</span>
+                                <span className="text-blue-600">{personalInfo.email}</span>
+                                <span>{personalInfo.address}</span>
+                            </div>
+                        </div>
+                    </header>
+                    <main className="grid grid-cols-3 gap-10">
+                        <div className="col-span-2">
+                            <PreviewSection title="Ringkasan">
+                                <p className="text-sm leading-relaxed">{summary}</p>
+                            </PreviewSection>
+                            <PreviewSection title="Pengalaman Kerja">
+                                {experience.map(exp => (
+                                    <div key={exp.id} className="mb-4 break-inside-avoid">
+                                        <h3 className="text-lg font-semibold">{exp.jobTitle}</h3>
+                                        <p className="font-medium text-blue-700">{exp.company} | {exp.location}</p>
+                                        <p className="text-xs text-gray-500 mb-1">{exp.startDate} - {exp.endDate}</p>
+                                        <p className="text-sm whitespace-pre-wrap">{exp.description}</p>
+                                    </div>
+                                ))}
+                            </PreviewSection>
+                            <PreviewSection title="Pendidikan">
+                                {education.map(edu => (
+                                    <div key={edu.id} className="mb-4 break-inside-avoid">
+                                        <h3 className="text-lg font-semibold">{edu.school}</h3>
+                                        <p className="font-medium text-blue-700">{edu.degree} | {edu.location}</p>
+                                        <p className="text-xs text-gray-500 mb-1">{edu.startDate} - {edu.endDate}</p>
+                                        <p className="text-sm">{edu.description}</p>
+                                    </div>
+                                ))}
+                            </PreviewSection>
+                        </div>
+                        <div className="col-span-1">
+                            <PreviewSection title="Keterampilan">
+                                <ul className="list-none">
+                                    {skills.map(skill => (
+                                        <li key={skill.id} className="text-sm bg-blue-50 text-blue-800 py-1 px-3 rounded-full inline-block mr-2 mb-2">{skill.name}</li>
+                                    ))}
+                                </ul>
+                            </PreviewSection>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const PreviewSection = ({ title, children }) => (
+            <section className="mb-6">
+                <h2 className="text-lg font-bold border-b-2 border-blue-700 pb-1 mb-3 text-blue-800">{title}</h2>
+                {children}
+            </section>
+        );
+
+        // Render aplikasi React ke dalam div#root
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+
+</body>
+</html>
