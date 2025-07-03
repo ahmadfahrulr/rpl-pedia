@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - RPLpedia</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for chat area */
+        #chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        #chat-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        #chat-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex flex-col h-screen">
+
+    <header class="bg-white shadow-sm z-10">
+        <div class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold text-slate-900">
+                <span class="text-blue-600">RPL</span><span class="text-red-600">PEDIA</span> AI
+            </a>
+            <div class="flex items-center gap-4">
+                <button id="toggle-sound-button" class="p-2 rounded-full hover:bg-slate-100 transition-colors" title="Nyalakan/Matikan Suara">
+                    <!-- Speaker icon -->
+                    <svg id="speaker-on-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                    <!-- Muted speaker icon (hidden by default) -->
+                    <svg id="speaker-off-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                    </svg>
+                </button>
+                <a href="index.html" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">
+                    &larr; Kembali ke Beranda
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center p-4 min-h-0">
+        <div class="w-full max-w-4xl h-full flex flex-col bg-white rounded-2xl shadow-lg">
+            <!-- Chat Display Area -->
+            <div id="chat-container" class="flex-1 p-6 space-y-6 overflow-y-auto">
+                <!-- Initial AI Message -->
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                        <span>AI</span>
+                    </div>
+                    <div class="bg-indigo-50 p-4 rounded-lg rounded-tl-none max-w-lg">
+                        <p class="text-slate-800">Halo! Saya adalah asisten AI dari RPLpedia. Silakan ajukan pertanyaan apa pun, dan saya akan mencoba menjawabnya!
+                        <br><br>
+                        <small class="text-slate-500">Ingat, saya adalah AI dan bisa membuat kesalahan. Selalu verifikasi informasi penting dari sumber lain.</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-4 border-t border-slate-200">
+                <div class="relative">
+                    <input type="text" id="user-input" class="w-full pl-4 pr-16 py-3 bg-slate-100 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow" placeholder="Ketik pertanyaan Anda di sini...">
+                    <button id="send-button" class="absolute right-2 top-1/2 -translate-y-1/2 bg-indigo-600 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                        </svg>
+                    </button>
+                </div>
+                <p class="text-xs text-slate-400 text-center mt-2 px-4">
+                    Jawaban yang dihasilkan AI mungkin tidak selalu akurat. Mohon gunakan informasi ini dengan bijak dan cari sumber tepercaya lainnya untuk validasi.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const toggleSoundButton = document.getElementById('toggle-sound-button');
+        const speakerOnIcon = document.getElementById('speaker-on-icon');
+        const speakerOffIcon = document.getElementById('speaker-off-icon');
+
+        let isMuted = false;
+
+        // Fungsi untuk membacakan teks
+        function speak(text) {
+            if (isMuted || !('speechSynthesis' in window)) {
+                return;
+            }
+            speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            speechSynthesis.speak(utterance);
+        }
+
+        // Event listener untuk tombol suara
+        toggleSoundButton.addEventListener('click', () => {
+            isMuted = !isMuted;
+            speakerOnIcon.classList.toggle('hidden', isMuted);
+            speakerOffIcon.classList.toggle('hidden', !isMuted);
+
+            if (isMuted) {
+                speechSynthesis.cancel();
+            }
+        });
+
+        // Fungsi untuk menambahkan pesan pengguna ke chat
+        function addUserMessage(message) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = 'flex items-start gap-3 justify-end';
+            messageWrapper.innerHTML = `
+                <div class="bg-blue-500 text-white p-4 rounded-lg rounded-br-none max-w-lg break-words">
+                    <p>${message}</p>
+                </div>
+                <div class="flex-shrink-0 w-10 h-10 bg-slate-300 text-slate-600 rounded-full flex items-center justify-center font-bold">
+                    <span>U</span>
+                </div>
+            `;
+            chatContainer.appendChild(messageWrapper);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Fungsi untuk mendapatkan dan menampilkan respons AI
+        async function getAiResponse(userMessage) {
+            const aiMessageWrapper = document.createElement('div');
+            aiMessageWrapper.className = 'flex items-start gap-3';
+            aiMessageWrapper.innerHTML = `
+                <div class="flex-shrink-0 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold">
+                    <span>AI</span>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-lg rounded-tl-none max-w-lg ai-message-content">
+                    <div class="flex items-center gap-2">
+                       <div class="w-2 h-2 bg-slate-400 rounded-full animate-pulse"></div>
+                       <div class="w-2 h-2 bg-slate-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                       <div class="w-2 h-2 bg-slate-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(aiMessageWrapper);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            const aiContentElement = aiMessageWrapper.querySelector('.ai-message-content');
+            const apiKey = "AIzaSyBpaeLeI4K3X4hhuVJtJlaFRrkfWr8Vlwc"; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const prompt = `Anda adalah RPLpedia AI, asisten yang ramah dan membantu dengan spesialisasi Rekayasa Perangkat Lunak (Software Engineering) dan topik ilmu komputer terkait. Jawab pertanyaan pengguna berikut dengan jelas dan ringkas dalam Bahasa Indonesia. Pertanyaan Pengguna: "${userMessage}"`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+                const result = await response.json();
+                
+                let aiText = "Maaf, terjadi kesalahan saat memproses permintaan Anda. Coba lagi nanti.";
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                  aiText = result.candidates[0].content.parts[0].text;
+                }
+                
+                // Mengubah format Markdown sederhana menjadi HTML
+                let formattedText = aiText
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Mengubah **teks** menjadi <b>teks</b>
+                    .replace(/\n/g, '<br>'); // Mengubah baris baru menjadi tag <br>
+
+                aiContentElement.innerHTML = `<p class="text-slate-800 break-words">${formattedText}</p>`;
+                
+                speak(aiText); // Tetap gunakan teks asli untuk suara agar lebih natural
+
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                const errorText = "Oops! Sepertinya ada masalah koneksi. Silakan coba lagi.";
+                aiContentElement.innerHTML = `<p class="text-slate-800 text-red-500">${errorText}</p>`;
+                speak(errorText);
+            } finally {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+        // Fungsi untuk mengirim pesan
+        function sendMessage() {
+            speechSynthesis.cancel();
+            const message = userInput.value.trim();
+            if (message === '') return;
+            addUserMessage(message);
+            userInput.value = '';
+            getAiResponse(message);
+        }
+
+        // Event Listeners
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
